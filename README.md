@@ -264,7 +264,7 @@ Inspect the structure of one table:
 and `mitglied` before `ausleihe`. Why does this order matter? What error would
 PostgreSQL report if you tried to create `ausleihe` first?
 
-> *Your answer:*
+> The order matters because of foreign key dependencies. exemplar references buch(isbn), so buch must be created first — a physical copy cannot exist without the book it belongs to. Similarly, ausleihe references both exemplar and mitglied, so both must exist before the loan table can be created. If you tried to create ausleihe first, PostgreSQL would throw an error because the referenced tables don't exist yet.
 
 **Question 4.2:** The `mitglied_id` and `ausleihe_id` columns use
 `GENERATED ALWAYS AS IDENTITY`. What does this mean? What happens if you try to
