@@ -554,7 +554,8 @@ WHERE  NOT EXISTS (
 > **Screenshot 7:** Take a screenshot showing the output of all three queries
 > in sequence in the `psql` shell.
 >
-> `[insert screenshot]`
+> <img width="1241" height="700" alt="image" src="https://github.com/user-attachments/assets/5814c241-b18e-4ba7-b8bf-a580dd349a53" />
+
 
 ### Questions for Section 7
 
