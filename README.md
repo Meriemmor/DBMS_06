@@ -98,7 +98,8 @@ psql --version
 
 > **Screenshot 2:** Take a screenshot showing the output of both commands.
 >
-> `[insert screenshot]`
+> <img width="556" height="119" alt="image" src="https://github.com/user-attachments/assets/62e3c4bb-4462-42b9-918f-0e6dbdcf47a0" />
+
 
 ---
 
@@ -154,7 +155,8 @@ Exit the superuser session:
 > **Screenshot 3:** Take a screenshot showing the `CREATE ROLE`, `CREATE DATABASE`,
 > and both `SELECT` results inside the `postgres=#` session.
 >
-> `[insert screenshot]`
+> <img width="336" height="257" alt="image" src="https://github.com/user-attachments/assets/d4039965-db56-4ae3-af3f-00c9f2a7014b" />
+
 
 ---
 
@@ -256,7 +258,8 @@ Inspect the structure of one table:
 > **Screenshot 4:** Take a screenshot showing the output of `\dt` and
 > `\d ausleihe`.
 >
-> `[insert screenshot]`
+> <img width="1564" height="578" alt="image" src="https://github.com/user-attachments/assets/71fde8d4-acc7-482e-9dd2-9fc50c257e38" />
+
 
 ### Questions for Section 4
 
@@ -361,7 +364,8 @@ SELECT COUNT(*) FROM mitglied;
 
 > **Screenshot 5:** Take a screenshot showing the three `COUNT(*)` results.
 >
-> `[insert screenshot]`
+> <img width="591" height="344" alt="image" src="https://github.com/user-attachments/assets/6bfa7125-5cd7-4fa1-85ce-d1ea2e04cd2b" />
+
 
 Exit `psql`:
 
@@ -446,7 +450,7 @@ SELECT * FROM ausleihe;
 
 > **Screenshot 6:** Take a screenshot showing the full output of `SELECT * FROM ausleihe`.
 >
-> `[insert screenshot]`
+> <img width="900" height="196" alt="image" src="https://github.com/user-attachments/assets/495f45e4-b73c-4e43-9c8c-fb1432b38a4d" />
 
 ### Questions for Section 6
 
