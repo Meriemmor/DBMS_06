@@ -267,19 +267,19 @@ Inspect the structure of one table:
 and `mitglied` before `ausleihe`. Why does this order matter? What error would
 PostgreSQL report if you tried to create `ausleihe` first?
 
-> *Your answer:*
+> Because exemplar has a foreign key pointing to buch, so buch has to exist first. Same with ausleihe — it references both exemplar and mitglied, so those need to be there already. If you try to create ausleihe first, PostgreSQL just says ERROR: relation "exemplar" does not exist and refuses.
 
 **Question 4.2:** The `mitglied_id` and `ausleihe_id` columns use
 `GENERATED ALWAYS AS IDENTITY`. What does this mean? What happens if you try to
 supply a value explicitly with `INSERT INTO mitglied (mitglied_id, ...) VALUES (5, ...)`?
 
-> *Your answer:*
+> It means PostgreSQL handles the ID automatically, you don't touch it. If you try to insert your own value, you get an error.
 
 **Question 4.3:** `tagesgebuehr` is defined as `NUMERIC(6,2)` while a simpler
 `REAL` would also hold decimal numbers. Give a concrete example of an arithmetic
 result that would differ between the two types when calculating a lending fee.
 
-> *Your answer:*
+> – REAL is floating-point which causes tiny rounding errors. Like 0.10 + 0.20 gives you 0.30000000000000004 instead of 0.30.
 
 ---
 
@@ -458,19 +458,19 @@ SELECT * FROM ausleihe;
 filesystem. What is the difference between server-side `COPY` and a
 client-side import? In which scenario would you need the client-side variant?
 
-> *Your answer:*
+> Server-side COPY reads the file directly from the server's filesystem. Client-side \copy reads from your own machine. If you're connected to a remote server and your CSV is on your laptop, you need \copy and  the server can't reach your local files.
 
 **Question 6.2:** The `NULL ''` option maps empty CSV fields to `NULL`.
 What would happen without this option if the `rueckgabe_datum` field is empty?
 
-> *Your answer:*
+> Without NULL '', PostgreSQL tries to interpret an empty field as an empty string '' and then fails trying to convert it to a date.
 
 **Question 6.3:** `ausleihe_id` is `GENERATED ALWAYS AS IDENTITY` and was not
 included in the CSV or the `COPY` column list. How does PostgreSQL handle the
 missing value? What would happen if you tried to include `ausleihe_id` in the
 `COPY` column list with explicit values?
 
-> *Your answer:*
+> PostgreSQL just fills it in automatically from the sequence, no problem. But if you tried to include ausleihe_id in the column list and provide values yourself, you'd get an error.
 
 ---
 
@@ -563,19 +563,23 @@ WHERE  NOT EXISTS (
 performed to always produce a correct result, and does the join order affect
 correctness or only performance?
 
-> *Your answer:*
+> The join order doesn't affect correctness at all, just performance. PostgreSQL's query optimizer figures out the best order on its own anyway.
 
 **Question 7.2:** Query 2 groups by `m.mitglied_id` in addition to the name
 columns. Why is grouping by the primary key necessary even though names appear
 unique in the sample data?
 
-> *Your answer:*
+> Because two different people could have the exact same name. If you only group by name, PostgreSQL would merge them into one row which would be wrong. The primary key mitglied_id guarantees each person stays separate.
 
 **Question 7.3:** Query 3 uses `NOT EXISTS` with a correlated subquery. Rewrite
 the query using `EXCEPT` and verify that both variants return the same result.
 Write your rewritten query here:
 
-> *Your rewritten query:*
+> SELECT b.titel, b.verlag FROM buch b
+EXCEPT
+SELECT b.titel, b.verlag FROM buch b
+JOIN exemplar e ON e.isbn = b.isbn
+JOIN ausleihe a ON a.exemplar_id = e.exemplar_id;
 
 Exit `psql`:
 
@@ -672,7 +676,8 @@ psql -U <your-username> -d kino -f kino.sql
 
 > **Screenshot 8:** Take a screenshot showing the script execution output.
 >
-> `[insert screenshot]`
+> <img width="737" height="187" alt="image" src="https://github.com/user-attachments/assets/9563a986-1b03-4357-9b8d-ac4ac51b77e2" />
+
 
 ---
 
@@ -725,7 +730,8 @@ ORDER BY reservierungen DESC;
 > **Screenshot 9:** Take a screenshot showing the output of all three
 > `SELECT` statements.
 >
-> `[insert screenshot]`
+> <img width="1631" height="968" alt="image" src="https://github.com/user-attachments/assets/36b4cc38-349e-49d9-b837-d7040580cfd0" />
+
 
 ### Questions for Section 9
 
@@ -733,19 +739,19 @@ ORDER BY reservierungen DESC;
 constraint. What does this prevent, and at which level is this constraint
 enforced — application or database?
 
-> *Your answer:*
+> It makes it impossible to book the same seat twice for the same screening. And because it's a database constraint, not just application logic, it holds even if two people try to book at the exact same time.
 
 **Question 9.2:** The third query uses `LEFT JOIN` between `vorstellung` and
 `reservierung`. What would be different about the result if you used `JOIN`
 (inner join) instead? Which films would disappear from the result and why?
 
-> *Your answer:*
+> With a regular JOIN, any film that has no reservations at all would just disappear from the result. LEFT JOIN keeps every film in the list, even with 0 reservations.
 
 **Question 9.3:** `ON DELETE CASCADE` was chosen for `reservierung.vorstellung_id`,
 but `ON DELETE RESTRICT` for `vorstellung.film_id`. Justify both choices in
 terms of the domain.
 
-> *Your answer:*
+> If a screening gets deleted, there's no point keeping the reservations — they're meaningless without the screening, so CASCADE makes sense. But if you try to delete a film that still has screenings planned, that's probably a mistake, so RESTRICT stops you and forces you to deal with the screenings first.
 
 Exit `psql`:
 
@@ -762,7 +768,7 @@ SQLite (DBMS_05) and PostgreSQL (this exercise) are both relational databases,
 but they operate very differently. Name two concrete differences you experienced
 in this exercise — in terms of setup, access control, or SQL behaviour.
 
-> *Your answer:*
+> You do not need any setup to use SQLite (and has no concept of roles or authentication at all) however PostgreSQL needs a running service and you have to create users, set passwords, grant permissions etc ...
 
 **Question B – COPY vs. INSERT:**  
 You inserted the `buch` and `exemplar` rows one at a time, and the `ausleihe`
@@ -770,21 +776,21 @@ rows via `COPY`. For a real import of 50,000 rows, which approach would you
 choose and why? What is the main operational cost of individual `INSERT`
 statements at scale?
 
-> *Your answer:*
+>  With 50,000 individual INSERTs, the database has to parse, plan and commit each one separately so it would take forever. COPY loads everything in one go, much faster.
 
 **Question C – Role model:**  
 You created a dedicated role with `LOGIN` and a password. The `postgres`
 superuser also exists. What is the security principle behind creating a
 separate role instead of always connecting as `postgres`?
 
-> *Your answer:*
+>  postgres can delete everything, modify anything. A separate role with only the permissions it needs means if something goes wrong, the damage is limited.
 
 **Question D – Script-driven setup:**  
 The `kino.sql` script creates the schema and inserts data in one run. What
 is the advantage of this approach over typing the statements interactively?
 Name one situation where an interactive approach is still preferable.
 
-> *Your answer:*
+> You can run it again anytime, on any machine, and get exactly the same result. Interactive is still better when you're exploring .
 
 ---
 
