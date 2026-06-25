@@ -505,8 +505,7 @@ WHERE  a.rueckgabe_datum IS NULL
 ORDER BY tage_ausgeliehen DESC;
 ```
 
-> *Describe the result: how many open loans are there, and which member has
-> held a book the longest?*
+>  There are 2 open loans. Hartmann Lea has held Homo Faber the longest (50 days).
 
 ---
 
@@ -528,7 +527,7 @@ ORDER BY ausleihen_gesamt DESC;
 
 > *Which member has the most loans? What does `FILTER (WHERE ...)` do here
 > compared to a `CASE WHEN` expression?*
-
+> Berger Jonas has the most loans (2). FILTER applies the COUNT only to rows matching the condition — cleaner than CASE WHEN which would need to return 1 or NULL for each row.
 ---
 
 ### Query 3 – Books That Have Never Been Borrowed
@@ -550,7 +549,7 @@ WHERE  NOT EXISTS (
 
 > *Which books appear in the result? Verify the result manually against the
 > data you entered.*
-
+> Das Parfum (Fischer) appears in the result — it has a physical copy but was never borrowed.
 > **Screenshot 7:** Take a screenshot showing the output of all three queries
 > in sequence in the `psql` shell.
 >
